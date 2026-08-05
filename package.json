@@ -1,0 +1,21 @@
+{
+  "name": "balanced-binary-search-tree",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SarahO3/balanced-binary-search-tree.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/SarahO3/balanced-binary-search-tree/issues"
+  },
+  "homepage": "https://github.com/SarahO3/balanced-binary-search-tree#readme"
+}
