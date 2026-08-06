@@ -1,0 +1,308 @@
+
+
+
+
+
+My memory trick
+
+Let's keep the same family tree:
+
+             Mum
+           /     \
+      Alice       Bob
+      /   \      /   \
+    Tim   Joy  Ken   Ada
+
+
+Who speaks first analogy.
+
+🟦 Level Order (Queue / BFS)
+
+Everyone speaks row by row.
+Everyone is called generation by generation.
+
+Mum
+
+↓
+
+Alice   Bob
+
+↓
+
+Tim   Joy   Ken   Ada
+
+
+🟩 InOrder (Left → Current → Right)
+BST, InOrder gives you sorted values.
+
+The smallest person always speaks first.
+Imagine the family is lined up from youngest to oldest 
+(assuming the left side represents "smaller" values).
+
+If it's a BST, you'll hear everyone in sorted order.
+
+Tim
+
+↓
+
+Alice
+
+↓
+
+Joy
+
+↓
+
+Mum
+
+↓
+
+Ken
+
+↓
+
+Bob
+
+↓
+
+Ada
+
+
+🟨 PreOrder (Current → Left → Right)
+
+Parent first.
+
+Children afterwards.
+
+Analogy: Introductions.
+
+Whenever a family arrives at a party:
+
+The parent introduces themselves first.
+
+Then introduces everyone in their left branch.
+
+Then everyone in their right branch.
+
+Mum
+
+↓
+
+
+
+
+Alice
+
+↓
+
+Tim
+
+↓
+
+Joy
+
+↓
+
+Bob
+
+↓
+
+Ken
+
+↓
+
+Ada
+
+🟥 PostOrder (Left → Right → Current)
+
+The children finish everything before the parent speaks.
+Tim
+
+↓
+
+Joy
+
+↓
+
+Alice
+
+↓
+
+Ken
+
+↓
+
+Ada
+
+↓
+
+Bob
+
+↓
+
+Mum
+
+
+
+
+Depth
+
+
+
+Think of it like this:
+
+Mission:
+
+Start at the root.
+
+Walk until you find the value.
+
+Count every step you take.
+
+When you arrive...
+
+That's the depth.
+
+For example,
+
+        50
+       /  \
+     30    70
+    /
+   20
+
+Looking for 20.
+
+Start at 50.
+
+↓
+
+Move to 30.
+Step = 1
+
+↓
+
+Move to 20.
+Step = 2
+
+Found it.
+
+Depth = 2
+
+That's all.
+
+
+Height
+
+Height is almost the opposite mission.
+
+Mission:
+
+Find the node.
+
+Now stand on it.
+
+Look down both sides.
+
+Whichever side reaches the furthest leaf...
+
+Count those steps.
+
+That's the height.
+
+      
+      What does "balanced" mean?
+
+A tree is balanced if every node satisfies this rule:
+
+The difference between the height of its left subtree 
+and the height of its right subtree is no more than 1.
+
+That means:
+
+|leftHeight - rightHeight| <= 1
+
+Notice something important:
+
+It doesn't say the root.
+
+It says every node.
+
+Balanced Tree
+
+        50
+      /    \
+    25      75
+   /  \    /  \
+ 10  30  60  90
+
+
+
+
+// Checks if the tree's left and right subtrees differ in height by no more than 1
+isBalanced() {
+    const cur = this.root
+    if(!this._getHeight(cur)) return false
+
+
+  // Helper to recursively check balance state
+  const checkBalance = (node) => {
+    if (!node) return true;
+
+    const leftHeight = getHeight(node.left);
+    const rightHeight = getHeight(node.right);
+
+    // Check if current node is balanced
+    const currentBalanced = Math.abs(leftHeight - rightHeight) <= 1;
+
+    // Tree is balanced only if current node AND all subtrees are balanced
+    return currentBalanced && checkBalance(node.left) && checkBalance(node.right);
+  };
+
+  return checkBalance(this.root);
+}
+
+// Reconstructs an unbalanced tree into a perfectly balanced tree
+rebalance() {
+  if (!this.root) return;
+
+  // Step 1: Collect all values in sorted order using your In-Order method
+  const sortedValues = [];
+  this.inOrderForEach(data => sortedValues.push(data));
+
+  // Step 2: Helper to build a balanced tree from the sorted array
+  const buildTree = (start, end) => {
+    if (start > end) return null;
+
+    // Pick the middle element to keep left and right sides equal
+    const mid = Math.floor((start + end) / 2);
+    
+    // Create a new node (adjust 'Node' to match your class name)
+    const newNode = new Node(sortedValues[mid]); 
+
+    // Recursively build the left and right halves
+    newNode.left = buildTree(start, mid - 1);
+    newNode.right = buildTree(mid + 1, end);
+
+    return newNode;
+  };
+
+  // Step 3: Replace the old unbalanced root with the new balanced root
+  this.root = buildTree(0, sortedValues.length - 1);
+}
+
+}
+
+
+
+
+
+
+
+            50
+         /    \
+       25      75
+      /  \    /
+    10   30 60
+            /
+          55

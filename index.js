@@ -1,171 +1,231 @@
-class Node{
-    constructor(data = null, left = null, right = null){
-        this.data = data;
+class Node { 
+    // Nodes hold data and knows it next left or right child
+    constructor(data = null, left = null, right = null) {
+        this.data = data; 
         this.left = left;
-        this.right = right
+        this.right = right;
     }
 }
 
-class Tree{
-    constructor(array){
-        // clean the array of duplicates and also sort from small to big
-        const unique = [... new Set(array)].sort((a, b) => a - b)
-        // find the root of array which is the middle using build tree recursive funtion
-        this.root = this.buildTree(unique)
+class Tree {
+    constructor(array) {
+        // Remove duplicates and sort the array numerically
+        const unique = [...new Set(array)].sort((a, b) => a - b);
+        
+        // Build the tree and save the top node as our root
+        //top node is always the root
+        this.root = this._buildTree(unique);
     }
 
-    buildTree(array){
-        if(array.length === 0) return null
+    
+            //a tree must know its root..which is the middle
+            //of an arrays lenght divided by 2
+            //take this part or half of array and give me its middle index value
+            //thats what nuild tree does recursively
+    _buildTree(array) {
+        if (array.length === 0) return null;
 
-        // find middle of array
-        const mid = Math.floor((array.length) / 2)
+        const mid = Math.floor(array.length / 2);
+        const root = new Node(array[mid]);
 
-        // create new node using mid
-        const node = new Node(array[mid])
 
-        // create left node
-        node.left = this.buildTree(array.slice(0, mid))
+        root.left = this._buildTree(array.slice(0, mid));
+        root.right = this._buildTree(array.slice(mid + 1));
 
-        // create right node
-        node.right = this.buildTree(array.slice(mid + 1))
-
-        return node
-
+        return root;
     }
 
-    includes(value){
-        // const node = new Node([value])
-        let currentNode = this.root
 
-        while(currentNode !== null){
-            if(currentNode.data === value){
-                return true
+    
+    find(value) {
+        let cur = this.root; 
+
+        while (cur !== null) {
+            if (value === cur.data) {
+                return cur; // Return the actual node when found
             }
-            if(value < currentNode.data){
-                currentNode = currentNode.left
-            }else{
-                currentNode = currentNode.right
+            if (value < cur.data) {
+                cur = cur.left;
+            } else {
+                cur = cur.right;
             }
-              
         }
-      
- return false
+        return null; // Return null if it doesn't exist
     }
 
+    insert(value) {
+        let cur = this.root;
 
-    // Insert
-insert(value) {
-    let current = this.root;
-
-    // If the tree is empty, create the root
-    if (!current) {
-        this.root = new Node(value);
-        return;
-    }
-
-    while (current !== null) {
-
-        // Don't insert duplicates
-        if (current.data === value) {
+        if (!cur) {
+            this.root = new Node(value);
             return;
         }
 
-        // Go left
-        if (value < current.data) {
+        while (cur !== null) {
+            if (value === cur.data) return; // Ignore duplicates
 
-            if (current.left) {
-                current = current.left;
+            if (value < cur.data) {
+                if (cur.left === null) {
+                    cur.left = new Node(value);
+                    return;
+                }
+                cur = cur.left;
             } else {
-                current.left = new Node(value);
-                return;
+                if (cur.right === null) {
+                    cur.right = new Node(value);
+                    return;
+                }
+                cur = cur.right;
             }
-
-        }
-
-        // Go right
-        else {
-
-            if (current.right) {
-                current = current.right;
-            } else {
-                current.right = new Node(value);
-                return;
-            }
-
         }
     }
-}
 
-
-// deleteitem
-deleteItem(value){
-  // Start deleting from the root of the tree.
-// deleteNode() searches for the value.
-// It returns the new root of the tree (or subtree) after the deletion.
-  this.root = this.deleteNode(this.root, value)
-}
-    
- 
-
-// Recursive delete helper
-deleteNode(currentRoot, value){
-  if(currentRoot === null) return null
-
-
-  if(value < currentRoot.data){
-
-    currentRoot.left = this.deleteNode(currentRoot.left, value)
-    return currentRoot
-
-  }
-  
-  if(value > currentRoot.data){
-        currentRoot.right = this.deleteNode(currentRoot.right, value)
-        return currentRoot
-    }else{
-
-        // found node we are looking for...if its leftis null
-        //we return its right
-  if(currentRoot.left === null){
-   return currentRoot.right
-  }
-    if(currentRoot.right === null){
-        return currentRoot.left
+    _getSuccessor(cur) {
+        cur = cur.right;
+        while (cur !== null && cur.left !== null) {
+            cur = cur.left;
+        }
+        return cur;
     }
 
- const successor = this.getSuccessor(currentRoot)
- 
-//  replace root with successor
-    currentRoot.data = successor.data
-
-    // delete duplicate
-    currentRoot.right = this.deleteNode(currentRoot.right, successor.data)
-return currentRoot
-
-  }
-
- 
-  }
-    
-  
-//   so in order words...a successoris basically the next larger
-//number after the current root node we have found
-  getSuccessor(node){
-    node = node.right
-
-    while(node.left !== null){
-        node = node.left
-    }
-    return node
-
-
-
-  }
-
-
-
+    deleteItem(value) {
         
-// end of tree class
-}
+        this.root = this._deleteNode(this.root, value);
+    }
 
-      
+    _deleteNode(cur, value) {
+        if (cur === null) return null;
+
+        if (value < cur.data) {
+            cur.left = this._deleteNode(cur.left, value);
+        } else if (value > cur.data) {
+            // FIXED: Was targeting cur.left instead of cur.right here
+            cur.right = this._deleteNode(cur.right, value);
+        } else {
+            // Found the node to delete!
+            
+            // Case 1 & 2: 0 or 1 child
+            if (cur.left === null) return cur.right;
+            if (cur.right === null) return cur.left; // FIXED: Was returning cur.right twice
+
+            // Case 3: Two children
+            const successor = this._getSuccessor(cur);
+            cur.data = successor.data;
+            cur.right = this._deleteNode(cur.right, successor.data);
+        }
+        return cur;
+    }
+
+    _getHeight(node) {
+        if (!node) return -1; // Edges count: leaf node height is 0, null is -1
+
+        // FIXED: Added 'this.' to recursive calls inside the method
+        return 1 + Math.max(
+            this._getHeight(node.left),
+            this._getHeight(node.right)
+        );
+    }
+
+    height(value) {
+        // Reuses our find logic to locate the node first
+        const cur = this.find(value);
+        if (!cur) return -1;
+        return this._getHeight(cur);
+    }
+
+
+    
+    depth(value) {
+        let cur = this.root;
+        let depth = 0;
+
+        while (cur && cur.data !== value) {
+            cur = value < cur.data ? cur.left : cur.right;
+            depth++;
+        }
+        return cur ? depth : -1;
+    }
+
+    _validateCallback(callback) {
+        // Odin states a callback is optional; if none provided, we create a default array accumulator
+        return callback || null;
+    }
+
+    levelOrder(callback) {
+        if (!this.root) return [];
+        
+        const queue = [this.root];
+        const result = [];
+
+        while (queue.length > 0) {
+            const cur = queue.shift();
+
+            // If a callback exists, pass data to it; otherwise, collect data in our array
+            if (callback) callback(cur);
+            else result.push(cur.data);
+
+            if (cur.left) queue.push(cur.left);
+            if (cur.right) queue.push(cur.right);
+        }
+        if (!callback) return result;
+    }
+
+    inOrder(callback) {
+        const result = [];
+        const traverse = (node) => {
+            if (!node) return;
+            traverse(node.left);
+            if (callback) callback(node);
+            else result.push(node.data);
+            traverse(node.right);
+        };
+        traverse(this.root);
+        if (!callback) return result;
+    }
+
+    preOrder(callback) {
+        const result = [];
+        const traverse = (node) => {
+            if (!node) return;
+            if (callback) callback(node);
+            else result.push(node.data);
+            traverse(node.left);
+            traverse(node.right);
+        };
+        traverse(this.root);
+        if (!callback) return result;
+    }
+
+    postOrder(callback) {
+        const result = [];
+        const traverse = (node) => {
+            if (!node) return;
+            traverse(node.left);
+            traverse(node.right);
+            if (callback) callback(node);
+            else result.push(node.data);
+        };
+        traverse(this.root);
+        if (!callback) return result;
+    }
+
+    isBalanced() {
+        const checkBalance = (node) => {
+            if (!node) return true;
+
+            const leftHeight = this._getHeight(node.left);
+            const rightHeight = this._getHeight(node.right);
+
+            const currentBalanced = Math.abs(leftHeight - rightHeight) <= 1;
+
+            return currentBalanced && checkBalance(node.left) && checkBalance(node.right);
+        };
+        return checkBalance(this.root);
+    }
+
+    rebalance() {
+        // Collect all data in sorted order using inOrder, then build a new balanced tree
+        const sortedData = this.inOrder();
+        this.root = this._buildTree(sortedData);
+    }
+}
