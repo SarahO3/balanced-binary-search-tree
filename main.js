@@ -62,41 +62,47 @@ class Tree{
          return false
     }
 
+insert(value) {
+    let cur = this.root;
 
-insert(value){
-    cur = this.root
+    // Create a new root if the tree is empty.
+    if (!cur) {
+        this.root = new Node(value);
+        return;
+    }
 
-    // create a new node with this value if no current root
-    if(!cur) {
-        this.root = new Node(value)
-        return
-}
+    while (cur !== null) {
 
-    while(cur !== null){
-        // value already exixts..dont create duplicate
-        if(value === cur.data){
-            return
+        // Value already exists. Don't create duplicates.
+        if (value === cur.data) {
+            return;
         }
 
-         // If the value belongs on the left side
-        if(value < cur.data){
-            if(cur.left === null){
-                 cur.left = new Node(value) // Found an empty spot! Insert here.
-                return // Exit the function entirely
+        // If the value belongs on the left side.
+        if (value < cur.data) {
+
+            // Empty spot found. Insert here.
+            if (cur.left === null) {
+                cur.left = new Node(value);
+                return;
             }
-            cur = cur.left  // Spot wasn't empty, move deeper down the left side
+
+            // Keep moving down the left subtree.
+            cur = cur.left;
         }
-                // If the value belongs on the right side
-        else
-            {
-            if(cur.righ === null){
-                    cur.left = new Node(value)
-                    return 
-                
+
+        // If the value belongs on the right side.
+        else {
+
+            // Empty spot found. Insert here.
+            if (cur.right === null) {
+                cur.right = new Node(value);
+                return;
             }
-            cur = cur.right
+
+            // Keep moving down the right subtree.
+            cur = cur.right;
         }
-      
     }
 }
     
@@ -330,56 +336,86 @@ preOrderForEach(callback){
     traverse(this.root)
 }
 
-// post order ...left, right, current
-// end of tree class
 
-postOrderForEach(callback){
-this._validateCallback(callback)
 
-const traverse = (node) => {
-    traverse(node.left)
+// Go to the left child.
 
-    traverse(node.right)
+// If there is another left child...
 
-    callback(node.data)
+// Go there too.
+
+// Keep doing this until you can't go left anymore.
+
+// Now...
+// Give me THIS node's data.
+
+// Now go right.
+
+// Repeat.
+
+
+
+
+
+
+
+// post-order ... left, right, current
+postOrderForEach(callback) {
+    this._validateCallback(callback);
+
+    const traverse = (node) => {
+
+        // STEP 1: Base case
+        // Once we reach past a leaf node,
+        // there's nothing left to visit.
+        if (!node) return;
+
+        // STEP 2: Visit the left subtree.
+        traverse(node.left);
+
+        // STEP 3: Visit the right subtree.
+        traverse(node.right);
+
+        // STEP 4: Visit the current node.
+        callback(node.data);
+    };
+
+    // STEP 5: Start from the root.
+    traverse(this.root);
 }
-
-traverse(this.root)
-}
-
-
-
 
 // Checks if the tree's left and right subtrees differ in height by no more than 1
 isBalanced() {
-  
-//helper function the balance of one node at a time
+
+  // Helper function that checks the balance of one node at a time
   const checkBalance = (node) => {
 
     // STEP 1: Base Case (The exit door of recursion)
-        // If we travel past a leaf node and hit null, it means there's no node here.
-        // An empty spot is perfectly balanced, so we return true!
+    // If we travel past a leaf node and hit null, it means there's no node here.
+    // An empty spot is perfectly balanced, so we return true.
     if (!node) return true;
 
-
-
-        // STEP 2: Gather information for the current node
-        // We use our existing helper method to find out how tall the left and right subtrees are.
-    const leftHeight = this._getHeight(node.left);
-    const rightHeight = this._getHeight(node.right);
-
+    // STEP 2: Gather information for the current node
+    // Find the height difference between the left and right subtrees.
+    // Math.abs converts any negative difference into a positive number.
+  const heightDiff = Math.abs(
+  this._getHeight(node.left) - this._getHeight(node.right)
+);
 
     // STEP 3: Test the current node
-        // A node is balanced if its left and right sides differ by 1 floor or less.
-        // Math.abs turns negative numbers positive (e.g., 1 - 3 = -2 becomes 2).
-    const currentBalanced = Math.abs(leftHeight - rightHeight) <= 1;
+    // If the height difference is greater than 1,
+    // this node is not balanced.
+    if (heightDiff > 1) return false;
 
-    // Tree is balanced only if current node AND all subtrees are balanced
-    return currentBalanced && checkBalance(node.left) && checkBalance(node.right);
+    // STEP 4: Check both subtrees.
+    // The tree is balanced only if both subtrees are balanced.
+    return checkBalance(node.left) && checkBalance(node.right);
   };
 
+  // Start checking from the root.
   return checkBalance(this.root);
 }
+
 
 // Reconstructs an unbalanced tree into a perfectly balanced tree
 rebalance() {
@@ -392,24 +428,92 @@ rebalance() {
      // STEP 2: Use your In-Order traversal method.
     // Remember: In-Order always visits nodes from smallest to largest!
     // We pass a callback function to scoop up each node's data and push it into our array.
-  this.inOrderForEach((node) => {
-    sortedData.push(node.data)
-  });
-
+this.inOrderForEach((value) => {
+    sortedData.push(value);
+});
 
   // STEP 3: Rebuild the tree from scratch.
     // We feed our beautifully sorted array back into our tree builder to make a fresh, balanced root.
-this.root = this._buuildTree(sortedValues)
+this.root = this._buuildTree(sortedData)
 
 
 }
   
-
-  // Step 3: Replace the old unbalanced root with the new balanced root
  
 
 }
 
 
+
+
+
+// DRIVER SCRIPT
+
+
+// Helper function to generate random array
+function generateRandomArray(size) {
+  return Array.from({ length: size }, () => Math.floor(Math.random() * 100));
+}
+
+// Helper function to print all traversals
+function printTraversals(tree) {
+
+    const levelOrder = [];
+    tree.levelOrderforEach((value) => levelOrder.push(value));
+    console.log(`Level-order: [${levelOrder.join(", ")}]`);
+
+    const preOrder = [];
+    tree.preOrderForEach((value) => preOrder.push(value));
+    console.log(`Pre-order:   [${preOrder.join(", ")}]`);
+
+    const inOrder = [];
+    tree.inOrderForEach((value) => inOrder.push(value));
+    console.log(`In-order:    [${inOrder.join(", ")}]`);
+
+    const postOrder = [];
+    tree.postOrderForEach((value) => postOrder.push(value));
+    console.log(`Post-order:  [${postOrder.join(", ")}]`);
+}
+
+// 1. Create a binary search tree from an array of random numbers (< 100)
+console.log("--- Step 1: Creating tree with random numbers < 100 ---");
+const randomArray = generateRandomArray(15);
+console.log("Initial array elements:", randomArray);
+const myTree = new Tree(randomArray);
+
+// 2. Confirm that the tree is balanced
+console.log("\n--- Step 2: Checking balance state ---");
+console.log("Is tree balanced?", myTree.isBalanced());
+
+
+// \n
+//\n means start on a new line right?
+// \n is called the newline escape character
+
+// 3. Print out all elements in level, pre, post, and in order
+console.log("\n--- Step 3: Printing elements in all traversals ---");
+printTraversals(myTree);
+
+// 4. Unbalance the tree by adding several numbers > 100
+console.log("\n--- Step 4: Adding numbers > 100 to unbalance the tree ---");
+const elementsToAdd = [105, 120, 145, 160, 185];
+console.log("Adding elements:", elementsToAdd);
+elementsToAdd.forEach(num => myTree.insert(num));
+
+// 5. Confirm that the tree is unbalanced
+console.log("\n--- Step 5: Checking balance state ---");
+console.log("Is tree balanced?", myTree.isBalanced());
+
+// 6. Balance the tree by calling rebalance()
+console.log("\n--- Step 6: Calling rebalance() ---");
+myTree.rebalance();
+
+// 7. Confirm that the tree is balanced
+console.log("\n--- Step 7: Checking balance state ---");
+console.log("Is tree balanced?", myTree.isBalanced());
+
+// 8. Print out all elements in level, pre, post, and in order
+console.log("\n--- Step 8: Printing elements in all traversals after rebalancing ---");
+printTraversals(myTree);
 
 
